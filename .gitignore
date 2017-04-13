@@ -7,3 +7,5 @@
 .externalNativeBuild
 /.idea/
 /app/build/
+/app/src/main/res/values/donottranslate.xml
+
