@@ -1,22 +1,29 @@
 package movies.popular.soliton.popularmovies.entity;
 
-import java.net.URL;
-import java.util.Calendar;
+import java.io.Serializable;
 
-public class Movie {
+public class Movie implements Serializable {
 
-    private URL thumbnail;
+    private String posterPath;
     private String title;
-    private Calendar releaseDate;
-    private float voteAverage;
+    private String releaseDate;
+    private double voteAverage;
     private String overview;
 
-    public URL getThumbnail() {
-        return thumbnail;
+    public Movie(String title, String posterPath, String releaseDate, double voteAverage, String overview) {
+        this.title = title;
+        this.posterPath = posterPath;
+        this.releaseDate = releaseDate;
+        this.voteAverage = voteAverage;
+        this.overview = overview;
     }
 
-    public void setThumbnail(URL thumbnail) {
-        this.thumbnail = thumbnail;
+    public String getThumbnailURL() {
+        return posterPath;
+    }
+
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
     }
 
     public String getTitle() {
@@ -27,15 +34,15 @@ public class Movie {
         this.title = title;
     }
 
-    public Calendar getReleaseDate() {
+    public String getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Calendar releaseDate) {
+    public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
 
-    public float getVoteAverage() {
+    public double getVoteAverage() {
         return voteAverage;
     }
 
