@@ -10,3 +10,4 @@
 /app/src/main/res/values/donottranslate.xml
 /gradle.properties
 app/libs/
+app/src/main/res/drawable/
