@@ -1,5 +1,8 @@
 package movies.popular.soliton.popularmovies.activity;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,10 +35,10 @@ import movies.popular.soliton.popularmovies.adapter.Adapter;
 import movies.popular.soliton.popularmovies.entity.Movie;
 
 import static movies.popular.soliton.popularmovies.util.Constant.API_KEY;
-import static movies.popular.soliton.popularmovies.util.Constant.POSTER_PATH;
 import static movies.popular.soliton.popularmovies.util.Constant.IMG_URL;
 import static movies.popular.soliton.popularmovies.util.Constant.OVERVIEW;
 import static movies.popular.soliton.popularmovies.util.Constant.POPULAR;
+import static movies.popular.soliton.popularmovies.util.Constant.POSTER_PATH;
 import static movies.popular.soliton.popularmovies.util.Constant.RELEASE_DATE;
 import static movies.popular.soliton.popularmovies.util.Constant.RESULTS;
 import static movies.popular.soliton.popularmovies.util.Constant.SPAN_COUNT;
@@ -61,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, SPAN_COUNT);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni == null) {
+            Toast.makeText(this, R.string.you_need_internet_connection, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         new RequestMovieTask().execute(Uri.parse(URL)
                 .buildUpon()
                 .appendPath(POPULAR)
