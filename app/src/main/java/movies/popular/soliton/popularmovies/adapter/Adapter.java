@@ -19,11 +19,15 @@ import movies.popular.soliton.popularmovies.entity.Movie;
 import static movies.popular.soliton.popularmovies.util.Constant.MOVIE;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
-    private final Context context;
+    private Context context;
     private List<Movie> movieList;
 
     public Adapter(List<Movie> movieList, Context context) {
         this.movieList = movieList;
+        this.context = context;
+    }
+
+    public Adapter(Context context) {
         this.context = context;
     }
 
@@ -59,7 +63,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             super(itemView);
             imageView = (ImageView) itemView.findViewById(R.id.poster);
             imageView.setOnClickListener(view -> {
-                Intent intent = new Intent(context,MovieDetailsActivity.class);
+                Intent intent = new Intent(context, MovieDetailsActivity.class);
                 intent.putExtra(MOVIE, movie);
                 context.startActivity(intent);
             });

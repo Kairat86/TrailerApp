@@ -8,4 +8,5 @@
 /.idea/
 /app/build/
 /app/src/main/res/values/donottranslate.xml
-
+/gradle.properties
+app/libs/

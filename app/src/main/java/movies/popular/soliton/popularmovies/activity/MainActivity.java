@@ -1,10 +1,10 @@
 package movies.popular.soliton.popularmovies.activity;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,34 +18,21 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
+import movies.popular.soliton.popularmovies.BuildConfig;
 import movies.popular.soliton.popularmovies.R;
 import movies.popular.soliton.popularmovies.adapter.Adapter;
 import movies.popular.soliton.popularmovies.entity.Movie;
+import movies.popular.soliton.popularmovies.util.RequestMovieTask;
 
 import static movies.popular.soliton.popularmovies.util.Constant.API_KEY;
-import static movies.popular.soliton.popularmovies.util.Constant.IMG_URL;
-import static movies.popular.soliton.popularmovies.util.Constant.OVERVIEW;
 import static movies.popular.soliton.popularmovies.util.Constant.POPULAR;
-import static movies.popular.soliton.popularmovies.util.Constant.POSTER_PATH;
-import static movies.popular.soliton.popularmovies.util.Constant.RELEASE_DATE;
-import static movies.popular.soliton.popularmovies.util.Constant.RESULTS;
-import static movies.popular.soliton.popularmovies.util.Constant.SPAN_COUNT;
-import static movies.popular.soliton.popularmovies.util.Constant.TITLE;
+import static movies.popular.soliton.popularmovies.util.Constant.SPAN_COUNT_SIX;
+import static movies.popular.soliton.popularmovies.util.Constant.SPAN_COUNT_THREE;
 import static movies.popular.soliton.popularmovies.util.Constant.TOP_RATED;
 import static movies.popular.soliton.popularmovies.util.Constant.URL;
-import static movies.popular.soliton.popularmovies.util.Constant.VOTE_AVERAGE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,8 +50,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.movie_list);
         mRecyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, SPAN_COUNT);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager layoutManager;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            layoutManager = new GridLayoutManager(this, SPAN_COUNT_THREE);
+        } else {
+            layoutManager = new GridLayoutManager(this, SPAN_COUNT_SIX);
+        }
+
+        mRecyclerView.setLayoutManager(layoutManager);
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni == null) {
@@ -72,10 +65,12 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
-        new RequestMovieTask().execute(Uri.parse(URL)
+        prgrsBar = findViewById(R.id.prgs_bar);
+        mAdapter = new Adapter(this);
+        new RequestMovieTask(prgrsBar, this, isGettingTopRated, mAdapter).execute(Uri.parse(URL)
                 .buildUpon()
                 .appendPath(POPULAR)
-                .appendQueryParameter(API_KEY, getString(R.string.api_key))
+                .appendQueryParameter(API_KEY, BuildConfig.API_KEY)
                 .build());
     }
 
@@ -101,10 +96,10 @@ public class MainActivity extends AppCompatActivity {
                             if (topRatedMovieList == null) {
                                 prgrsBar.setVisibility(View.VISIBLE);
                                 isGettingTopRated = true;
-                                new RequestMovieTask().execute(Uri.parse(URL)
+                                new RequestMovieTask(prgrsBar, MainActivity.this, isGettingTopRated, mAdapter).execute(Uri.parse(URL)
                                         .buildUpon()
                                         .appendPath(TOP_RATED)
-                                        .appendQueryParameter(API_KEY, getString(R.string.api_key))
+                                        .appendQueryParameter(API_KEY, BuildConfig.API_KEY)
                                         .build());
                             } else {
                                 mAdapter.setList(topRatedMovieList);
@@ -123,46 +118,15 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    private class RequestMovieTask extends AsyncTask<Uri, Void, String> {
-        private String TAG = RequestMovieTask.class.getSimpleName();
+    public void setTopRatedMovieList(List<Movie> topRatedMovieList) {
+        this.topRatedMovieList = topRatedMovieList;
+    }
 
-        @Override
-        protected String doInBackground(Uri... params) {
-            String json = null;
-            try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(params[0].toString()).openConnection();
-                InputStream in = connection.getInputStream();
-                Scanner scanner = new Scanner(in).useDelimiter("//A");
-                json = scanner.next();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return json;
-        }
+    public void setPopularMovieList(List<Movie> popularMovieList) {
+        this.popularMovieList = popularMovieList;
+    }
 
-        @Override
-        protected void onPostExecute(String s) {
-            prgrsBar = findViewById(R.id.prgs_bar);
-            prgrsBar.setVisibility(View.GONE);
-            try {
-                List<Movie> movieList = new ArrayList<>();
-                JSONObject jsonObject = new JSONObject(s);
-                JSONArray jsonArray = jsonObject.getJSONArray(RESULTS);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject object = jsonArray.getJSONObject(i);
-                    movieList.add(new Movie(object.getString(TITLE), IMG_URL + object.getString(POSTER_PATH),
-                            object.getString(RELEASE_DATE), object.getDouble(VOTE_AVERAGE), object.getString(OVERVIEW)));
-                }
-                mAdapter = new Adapter(movieList, MainActivity.this);
-                mRecyclerView.setAdapter(mAdapter);
-                if (isGettingTopRated) {
-                    topRatedMovieList = movieList;
-                } else {
-                    popularMovieList = movieList;
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
     }
 }
