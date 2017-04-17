@@ -3,6 +3,7 @@ package movies.popular.soliton.popularmovies.activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +30,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         TextView releaseDate = (TextView) findViewById(R.id.release_date_val);
         releaseDate.setText(movie.getReleaseDate());
         TextView averageVote = (TextView) findViewById(R.id.average_vote_val);
-        averageVote.setText(String.format(Locale.getDefault(), "10.2f", movie.getVoteAverage()));
+        averageVote.setText(String.format(Locale.getDefault(), "%10.2f", movie.getVoteAverage()));
+        TextView overview = (TextView) findViewById(R.id.overview);
+        overview.setMovementMethod(new ScrollingMovementMethod());
+        overview.setText(movie.getOverview());
     }
 }
