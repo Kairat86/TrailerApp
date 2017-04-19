@@ -10,6 +10,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +19,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,17 +29,24 @@ import movies.popular.soliton.popularmovies.BuildConfig;
 import movies.popular.soliton.popularmovies.R;
 import movies.popular.soliton.popularmovies.adapter.Adapter;
 import movies.popular.soliton.popularmovies.entity.Movie;
+import movies.popular.soliton.popularmovies.entity.Result;
+import movies.popular.soliton.popularmovies.retrofit.TheMovieDBAPI;
 import movies.popular.soliton.popularmovies.util.RequestMovieTask;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static movies.popular.soliton.popularmovies.util.Constant.API_KEY;
-import static movies.popular.soliton.popularmovies.util.Constant.POPULAR;
 import static movies.popular.soliton.popularmovies.util.Constant.SPAN_COUNT_SIX;
 import static movies.popular.soliton.popularmovies.util.Constant.SPAN_COUNT_THREE;
 import static movies.popular.soliton.popularmovies.util.Constant.TOP_RATED;
 import static movies.popular.soliton.popularmovies.util.Constant.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Callback<Result> {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private RecyclerView mRecyclerView;
     private Adapter mAdapter;
     private int currentSelection;
@@ -66,12 +77,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         prgrsBar = findViewById(R.id.prgs_bar);
-        mAdapter = new Adapter(this);
-        new RequestMovieTask(prgrsBar, this, isGettingTopRated, mAdapter).execute(Uri.parse(URL)
-                .buildUpon()
-                .appendPath(POPULAR)
-                .appendQueryParameter(API_KEY, BuildConfig.API_KEY)
-                .build());
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(URL).addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        TheMovieDBAPI theMovieDBAPI = retrofit.create(TheMovieDBAPI.class);
+        Call<Result> call = theMovieDBAPI.getPopularMovies(BuildConfig.API_KEY);
+        call.enqueue(this);
     }
 
     @Override
@@ -128,5 +142,31 @@ public class MainActivity extends AppCompatActivity {
 
     public RecyclerView getRecyclerView() {
         return mRecyclerView;
+    }
+
+    @Override
+    public void onResponse(Call<Result> call, Response<Result> response) {
+        if (response.isSuccessful()) {
+            Log.i(TAG, response.body().getResults().toString());
+            Log.i(TAG, "isGettingTopRated=>" + isGettingTopRated);
+            prgrsBar.setVisibility(View.GONE);
+            List<Movie> movies = response.body().getResults();
+            if (isGettingTopRated) {
+                mAdapter.setList(movies);
+                mAdapter.notifyDataSetChanged();
+                popularMovieList = movies;
+            } else {
+                mAdapter = new Adapter(movies, this);
+                topRatedMovieList = movies;
+            }
+            mRecyclerView.setAdapter(mAdapter);
+        } else {
+            System.out.println(response.errorBody());
+        }
+    }
+
+    @Override
+    public void onFailure(Call<Result> call, Throwable t) {
+        t.printStackTrace();
     }
 }

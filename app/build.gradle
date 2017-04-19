@@ -13,6 +13,9 @@ android {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
         }
+        jackOptions {
+            enabled true
+        }
     }
     buildTypes {
         release {
@@ -32,5 +35,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'me.grantland:autofittextview:0.2.1'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
 }

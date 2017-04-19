@@ -21,7 +21,6 @@ import movies.popular.soliton.popularmovies.activity.MainActivity;
 import movies.popular.soliton.popularmovies.adapter.Adapter;
 import movies.popular.soliton.popularmovies.entity.Movie;
 
-import static movies.popular.soliton.popularmovies.util.Constant.IMG_URL;
 import static movies.popular.soliton.popularmovies.util.Constant.OVERVIEW;
 import static movies.popular.soliton.popularmovies.util.Constant.POSTER_PATH;
 import static movies.popular.soliton.popularmovies.util.Constant.RELEASE_DATE;
@@ -67,7 +66,7 @@ public class RequestMovieTask extends AsyncTask<Uri, Void, String> {
             JSONArray jsonArray = jsonObject.getJSONArray(RESULTS);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
-                movieList.add(new Movie(object.getString(TITLE), IMG_URL + object.getString(POSTER_PATH),
+                movieList.add(new Movie(object.getString(TITLE),  object.getString(POSTER_PATH),
                         object.getString(RELEASE_DATE), object.getDouble(VOTE_AVERAGE), object.getString(OVERVIEW)));
             }
             Log.i(TAG, "is movieList empty=>" + movieList.isEmpty());

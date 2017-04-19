@@ -21,6 +21,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Movie movie = (Movie) getIntent().getSerializableExtra(MOVIE);
         setContentView(R.layout.overview);
         ImageView imageView = (ImageView) findViewById(R.id.img);
@@ -28,9 +29,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.title);
         title.setText(movie.getTitle());
         TextView releaseDate = (TextView) findViewById(R.id.release_date_val);
-        releaseDate.setText(movie.getReleaseDate());
+        releaseDate.setText(movie.getRelease_date());
         TextView averageVote = (TextView) findViewById(R.id.average_vote_val);
-        averageVote.setText(String.format(Locale.getDefault(), "%10.2f", movie.getVoteAverage()));
+        averageVote.setText(String.format(Locale.getDefault(), "%10.2f", movie.getVote_average()));
         TextView overview = (TextView) findViewById(R.id.overview);
         overview.setMovementMethod(new ScrollingMovementMethod());
         overview.setText(movie.getOverview());
