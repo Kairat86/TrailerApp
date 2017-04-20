@@ -1,10 +1,11 @@
 package movies.popular.soliton.popularmovies.entity;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import static movies.popular.soliton.popularmovies.util.Constant.IMG_URL;
 
-public class Movie implements Serializable {
+public class Movie implements Parcelable {
 
     private String poster_path;
     private String title;
@@ -12,12 +13,40 @@ public class Movie implements Serializable {
     private double vote_average;
     private String overview;
 
+    static final Parcelable.Creator<Movie> CREATOR
+            = new Parcelable.Creator<Movie>() {
+
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+
     public Movie(String title, String posterPath, String releaseDate, double voteAverage, String overview) {
         this.title = title;
         this.poster_path = posterPath;
         this.release_date = releaseDate;
         this.vote_average = voteAverage;
         this.overview = overview;
+    }
+
+    public Movie(Parcel in) {
+
+
+    }
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(poster_path);
+        dest.writeString(title);
+        dest.writeString(release_date);
+        dest.writeString(overview);
+        dest.writeDouble(vote_average);
     }
 
     public String getThumbnailURL() {
@@ -69,5 +98,10 @@ public class Movie implements Serializable {
                 ", vote_average=" + vote_average +
                 ", overview='" + overview + '\'' +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

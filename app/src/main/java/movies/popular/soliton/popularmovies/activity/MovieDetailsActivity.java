@@ -22,7 +22,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Movie movie = (Movie) getIntent().getSerializableExtra(MOVIE);
+        Movie movie = getIntent().getParcelableExtra(MOVIE);
         setContentView(R.layout.overview);
         ImageView imageView = (ImageView) findViewById(R.id.img);
         Picasso.with(this).load(movie.getThumbnailURL()).into(imageView);
