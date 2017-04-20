@@ -13,9 +13,9 @@ android {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
         }
-        jackOptions {
-            enabled true
-        }
+//        jackOptions {
+//            enabled true  |uncomment this if it not deprecated in gradle plugin version you are using
+//        }
     }
     buildTypes {
         release {
